@@ -47,7 +47,8 @@ function indicar_ganancia (opcion)
   endif
 endfunction
  
-eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
+eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},
+"SelectionMode","Single","CancelString","Finalizar");
 switch(eleccion_1)
   case 1
     global coefnum;
@@ -70,13 +71,17 @@ switch(eleccion_1)
     quit;   
 endswitch
 
-eleccion_2=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Seleccionar alguna caracteristica en particular", "Obtener todas las caracteristicas de la funcion"},"SelectionMode","Single");
+eleccion_2=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Seleccionar alguna caracteristica en particular",
+"Obtener todas las caracteristicas de la funcion"},"SelectionMode","Single");
 
 switch(eleccion_2)
   case 1 %Seleccionar alguna caracteristica en particular
-    eleccion_3=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Obtener la expresion de la funcion transferencia", "Indicar polos","Indicar ceros","Marcar ganancia de la funcion","Obtener expresion con sus polos, ceros y ganancia","Mostrar graficamente la distribucion de polos y ceros.","Indicar estabilidad del sistema","Obtener todas las caracteristicas anteriores","Ingresar una nueva funcion"},"SelectionMode","Single","CancelString","Finalizar");   
+    eleccion_3=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Obtener la expresion de la funcion transferencia",
+    "Indicar polos","Indicar ceros","Marcar ganancia de la funcion","Obtener expresion con sus polos, ceros y ganancia",
+    "Mostrar graficamente la distribucion de polos y ceros.","Indicar estabilidad del sistema",
+    "Obtener todas las caracteristicas anteriores","Ingresar una nueva funcion"},"SelectionMode","Single","CancelString","Finalizar");   
      switch(eleccion_3)
-        case 1 %Obtener la expresión de la función tranferencia  
+        case 1 %Obtener la expresiÃ³n de la funciÃ³n tranferencia  
           global opcion;
           funcion_transferencia(opcion);
         case 2 %Indicar polos
@@ -112,5 +117,6 @@ switch(eleccion_2)
       endswitch
   case 2 %mostrar todas (1,2,3,4,5,6)
   otherwise
-    eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");  
+    eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar grado y coeficientes",
+    "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");  
 endswitch
