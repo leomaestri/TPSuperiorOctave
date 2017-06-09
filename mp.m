@@ -76,7 +76,7 @@ switch(eleccion_2)
   case 1 %Seleccionar alguna caracteristica en particular
     eleccion_3=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Obtener la expresion de la funcion transferencia", "Indicar polos","Indicar ceros","Marcar ganancia de la funcion","Obtener expresion con sus polos, ceros y ganancia","Mostrar graficamente la distribucion de polos y ceros.","Indicar estabilidad del sistema","Obtener todas las caracteristicas anteriores","Ingresar una nueva funcion"},"SelectionMode","Single","CancelString","Finalizar");   
      switch(eleccion_3)
-        case 1 %Obtener la expresión de la función tranferencia  
+        case 1 %Obtener la expresiÃ³n de la funciÃ³n tranferencia  
           global opcion;
           funcion_transferencia(opcion);
         case 2 %Indicar polos
@@ -105,7 +105,32 @@ switch(eleccion_2)
           funcion_transferencia(opcion);
           pzmap(ftran);
         case 7 %Estabilidad del sistema
+           global ftran;
+           calcular_polos_ceros_ganancia;
+          if(any(real(polosobtenidos) > 0))
+            msgbox("Es un sistema inestable"); %hay polos con parte real positiva
+          else
+            msgbox("Es un sistema estable"); %No hay polos con parte real positiva
+          endif 
+           %con la condicion me devuelve una matriz con 1 y 0 reprencentando true y false, any testea matrizes de 0s y 1s y se fija si hay un uno       
+           %si los polos son numeros complejos uso la funcion
+           %Es sistema estable si: es polo real negativo, nulo, imaginario puro, polo conjugado con parte real negativa( es decir a+bj y a-bj  y a es negativo),
+           %Es sistema inestable si: es polo real positivo, polo conjugado con parte real positiva
         case 8 %Todas las anteriores
+          global ftran;
+          msgbox(evalc ("ftran"),"Obtener la expresion de la funcion transferencia");
+          indicar_polos;
+          indicar_ceros;
+          indicar_ganancia;
+          expresion_con_polos_ceros_ganancia;
+          pzmap(ftran);
+          global ftran;
+           calcular_polos_ceros_ganancia;
+          if(any(real(polosobtenidos) > 0))
+            msgbox("Es un sistema inestable"); %hay polos con parte real positiva
+          else
+            msgbox("Es un sistema estable"); %No hay polos con parte real positiva
+          endif 
         case 9 %Nueva funcion
         otherwise
           quit;  
