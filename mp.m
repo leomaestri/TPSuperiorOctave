@@ -47,7 +47,7 @@ function indicar_ganancia (opcion)
   endif
 endfunction
  
-eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
+eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
 switch(eleccion_1)
   case 1
     global coefnum;
@@ -137,5 +137,5 @@ switch(eleccion_2)
       endswitch
   case 2 %mostrar todas (1,2,3,4,5,6)
   otherwise
-    eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");  
+    eleccion_1=listdlg("Name","ASIC","ListSize", [300 300],"ListString",{"Ingresar coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");  
 endswitch
