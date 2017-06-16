@@ -4,15 +4,20 @@ global polos;
 global ceros;
 global ganancia;
 global ftran;
+global ftran1;
+global numerador;
+global denominador;
 global opcion;
 global cerosobtenidos;
 global polosobtenidos;
 global gananciaobtenida;
-
-format long E;
+global ftranzpk;
+global numF;
+global denF;
  
 pkg load control;
 pkg load signal;
+pkg load symbolic;
 
 i=0;
 j=0;
@@ -22,9 +27,11 @@ function funcion_transferencia  %terminada
   global opcion; 
   if(opcion==1)
     global ftran;
+    global ftran1;
     global coefnum;
     global coefden;
-    ftran= tf(str2num(cell2mat(coefnum)),str2num(cell2mat(coefden)));
+    ftran1= tf(str2num(cell2mat(coefnum)),str2num(cell2mat(coefden)));
+    ftran= minreal(ftran1);
   elseif(opcion==2)
     global ftran;
     global polos;
@@ -33,6 +40,53 @@ function funcion_transferencia  %terminada
     ftran=zpk(str2num(cell2mat(ceros)),str2num(cell2mat(polos)),str2num(cell2mat(ganancia)));
   endif
 endfunction
+
+function [num,den] = numeradorYDenominador
+    global ftran;
+    global numerador;
+    global denominador;
+    global numF;
+    global denF;
+    x = sym('s');
+    [numerador, denominador] = tfdata(ftran, "v");
+    numF = poly2sym(numerador, x);
+    denF = poly2sym(denominador, x);
+  
+endfunction
+
+function formatearSalidaFuncionConCerosPolosGanancia
+  global ftranzpk;
+  global numF;
+  global denF;
+  global opcion;
+  global gananciaF
+  global gananciaobtenida;
+  
+  gananciaF = gananciaobtenida;
+  s = sym('s');
+  raicesNum = roots(numF);
+  raicesDen = roots(denF);
+  cantRaicesN = length(raicesNum);
+  cantRaicesD = length(raicesDen);
+  if(cantRaicesN > 0)
+    numeradorF = 1;
+    for m=1:cantRaicesN
+      numeradorF = numeradorF*(s - (raicesNum(m)));
+    endfor
+  else
+    numeradorF = numF;
+  endif
+  if(cantRaicesD > 0)
+    denominadorF = 1;
+    for n=1:cantRaicesD
+      denominadorF = denominadorF*(s - (raicesDen(n)));
+    endfor
+  else
+    denominador = denF;
+  endif
+  ftranzpk = gananciaF*(numeradorF/denominadorF);
+endfunction
+
  
 function indicar_polos 
   global opcion;
@@ -82,11 +136,12 @@ function indicar_ganancia %terminada
   endif
 endfunction
 
-function expresion_con_polos_ceros_ganancia %no la probe pero deberia funcionar bien cuando se complete lo que falta
-  funcion_transferencia;
-  indicar_polos;
-  indicar_ceros;
-  indicar_ganancia;
+function expresion_con_polos_ceros_ganancia
+  global ftranzpk;
+  numeradorYDenominador;
+  formatearSalidaFuncionConCerosPolosGanancia;
+  msgbox(disp(ftranzpk), "Expresion de la funcion con ceros, polos y ganancia");
+  
  endfunction
 
 function mostrar_funcion_transferencia
@@ -111,6 +166,9 @@ endfunction
   
 function todos_los_casos_funcion_transferencia
   mostrar_funcion_transferencia;
+  indicar_polos;
+  indicar_ceros;
+  indicar_ganancia;
   expresion_con_polos_ceros_ganancia;
   grafico_polos_ceros;
   estabilidad_sistema;
@@ -143,6 +201,7 @@ switch(eleccion_1)
 endswitch
 
 funcion_transferencia;
+calcular_polos_ceros_ganancia;
 
 eleccion_2=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Seleccionar alguna caracteristica en particular", "Obtener todas las caracteristicas de la funcion"},"SelectionMode","Single");
 
