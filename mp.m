@@ -120,7 +120,7 @@ endfunction
 while z==0 || j==0
 j=0;
 z=0;
-eleccion_1=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
+eleccion_1=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Ingresar coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
 switch(eleccion_1)
   case 1
     global coefnum;
