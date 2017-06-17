@@ -4,20 +4,17 @@ global polos;
 global ceros;
 global ganancia;
 global ftran;
-global ftran1;
-global numerador;
-global denominador;
 global opcion;
 global cerosobtenidos;
 global polosobtenidos;
 global gananciaobtenida;
-global ftranzpk;
-global numF;
-global denF;
- 
+global expresionFinal1;
+global expresionFinal2;
+global expresionFinalBarra;
+global expresion;
+
 pkg load control;
 pkg load signal;
-pkg load symbolic;
 
 i=0;
 j=0;
@@ -27,11 +24,9 @@ function funcion_transferencia  %terminada
   global opcion; 
   if(opcion==1)
     global ftran;
-    global ftran1;
     global coefnum;
     global coefden;
-    ftran1= tf(str2num(cell2mat(coefnum)),str2num(cell2mat(coefden)));
-    ftran= minreal(ftran1);
+    ftran= tf(str2num(cell2mat(coefnum)),str2num(cell2mat(coefden)));
   elseif(opcion==2)
     global ftran;
     global polos;
@@ -40,65 +35,22 @@ function funcion_transferencia  %terminada
     ftran=zpk(str2num(cell2mat(ceros)),str2num(cell2mat(polos)),str2num(cell2mat(ganancia)));
   endif
 endfunction
-
-function [num,den] = numeradorYDenominador
-    global ftran;
-    global numerador;
-    global denominador;
-    global numF;
-    global denF;
-    x = sym('s');
-    [numerador, denominador] = tfdata(ftran, "v");
-    numF = poly2sym(numerador, x);
-    denF = poly2sym(denominador, x);
-  
-endfunction
-
-function formatearSalidaFuncionConCerosPolosGanancia
-  global ftranzpk;
-  global numF;
-  global denF;
-  global opcion;
-  global gananciaF
-  global gananciaobtenida;
-  
-  gananciaF = gananciaobtenida;
-  s = sym('s');
-  raicesNum = roots(numF);
-  raicesDen = roots(denF);
-  cantRaicesN = length(raicesNum);
-  cantRaicesD = length(raicesDen);
-  if(cantRaicesN > 0)
-    numeradorF = 1;
-    for m=1:cantRaicesN
-      numeradorF = numeradorF*(s - (raicesNum(m)));
-    endfor
-  else
-    numeradorF = numF;
-  endif
-  if(cantRaicesD > 0)
-    denominadorF = 1;
-    for n=1:cantRaicesD
-      denominadorF = denominadorF*(s - (raicesDen(n)));
-    endfor
-  else
-    denominador = denF;
-  endif
-  ftranzpk = gananciaF*(numeradorF/denominadorF);
-endfunction
-
  
-function indicar_polos 
-  global opcion;
-  if(opcion==1)
-    global polosobtenidos;
-    calcular_polos_ceros_ganancia;
-    for i=1:rows(polosobtenidos)
-      msgbox(num2str(polosobtenidos(i,1)),"Polos");
-     endfor;
+function indicar_polos
+    global opcion;
+  if(opcion==1)  
+    global ftran;
+    global coefnum;
+    global coefden;     
+    ftran= tf(str2num(cell2mat(coefnum)),str2num(cell2mat(coefden)));
+    [C,P,G]=tf2zp(ftran);
+    for i=1:rows(P)
+      msgbox(num2str(P(i,1)),"Polos");
+    endfor
+   
   elseif(opcion==2)
     global polos;
-    msgbox(strcat("Los polos obtenidos son: ",cell2mat(polos)),"Indicar polos");
+    msgbox(polos,"Polos");
   endif
 endfunction
 
@@ -132,53 +84,77 @@ function indicar_ganancia %terminada
   msgbox(strcat("La ganancia obtenida es: ",num2str(gananciaobtenida)),"Indicar ganancia");
   elseif(opcion==2)
     global ganancia;
-    msgbox(strcat("La ganancia obtenida es: ",cell2mat(ganancia)),"Indicar ganancia");
+    msgbox(strcat("La ganancia obtenida es: ",cell2mat(ceros)),"Indicar ganancia");
   endif
 endfunction
 
 function expresion_con_polos_ceros_ganancia
-  global ftranzpk;
-  numeradorYDenominador;
-  formatearSalidaFuncionConCerosPolosGanancia;
-  msgbox(disp(ftranzpk), "Expresion de la funcion con ceros, polos y ganancia");
-  
+   global opcion;
+   global ftran;
+   global gananciaobtenida;
+   global polosobtenidos; 
+   global cerosobtenidos;
+   global expresionFinal1;
+   global expresionFinal2;
+   global expresionFinalBarra;
+   global expresion;
+   expresion = "";
+  if(opcion==1)
+    calcular_polos_ceros_ganancia;
+    expresionFinal1 = num2str(gananciaobtenida);
+    expresionFinal2 = "";
+    
+    calcular_polos_ceros_ganancia;
+    for i=1:rows(polosobtenidos)
+      expresion = num2str(polosobtenidos(i,1));
+      expresion = strcat("(s -( ", expresion, "))");
+      expresionFinal1 = strcat (expresionFinal1, expresion);
+   endfor;
+   
+   calcular_polos_ceros_ganancia;
+    for i=1:rows(cerosobtenidos)
+      expresion = num2str(cerosobtenidos(i,1));
+      expresion = strcat("(s - (", expresion, "))");
+      expresionFinal2 = strcat (expresionFinal2, expresion);
+    endfor;
+    
+      expresionFinalBarra = "--------------------";   
+   msgbox(strcat (expresionFinal1, "\n", expresionFinalBarra, "\n", expresionFinal2),"Expresion");
+   
+  elseif(opcion==2)
+    global ftran;
+    global polos;
+    global ceros;
+    global ganancia;
+    ftran=zpk(str2num(cell2mat(ceros)),str2num(cell2mat(polos)),str2num(cell2mat(ganancia)));
+    [cerosobtenidos,polosobtenidos,gananciaobtenida]=tf2zp(ftran);
+     calcular_polos_ceros_ganancia;
+    expresionFinal1 = num2str(gananciaobtenida);
+    expresionFinal2 = "";
+    
+    calcular_polos_ceros_ganancia;
+    for i=1:rows(polosobtenidos)
+      expresion = num2str(polosobtenidos(i,1));
+      expresion = strcat("(s -( ", expresion, "))");
+      expresionFinal1 = strcat (expresionFinal1, expresion);
+   endfor;
+   
+   calcular_polos_ceros_ganancia;
+    for i=1:rows(cerosobtenidos)
+      expresion = num2str(cerosobtenidos(i,1));
+      expresion = strcat("(s - (", expresion, "))");
+      expresionFinal2 = strcat (expresionFinal2, expresion);
+    endfor;
+    
+      expresionFinalBarra = "--------------------";   
+   msgbox(strcat (expresionFinal1, "\n", expresionFinalBarra, "\n", expresionFinal2),"Expresion");
+  endif
  endfunction
 
-function mostrar_funcion_transferencia
-  global ftran;
-  msgbox(evalc ("ftran"),"Obtener la expresion de la funcion transferencia");
- endfunction
-
-function grafico_polos_ceros
-  global ftran;
-  pzmap(ftran);
-endfunction
-
-function estabilidad_sistema
-  global polosobtenidos;
-  calcular_polos_ceros_ganancia;
-  if(any(real(polosobtenidos) > 0.001))%Es mayor a cero pero octave no devuelve 0 en la parte real, devuelve un infinitesimo positivo
-    msgbox("Es un sistema inestable"); %hay polos con parte real positiva
-  else
-    msgbox("Es un sistema estable"); %No hay polos con parte real positiva
-  endif 
-endfunction
-  
-function todos_los_casos_funcion_transferencia
-  mostrar_funcion_transferencia;
-  indicar_polos;
-  indicar_ceros;
-  indicar_ganancia;
-  expresion_con_polos_ceros_ganancia;
-  grafico_polos_ceros;
-  estabilidad_sistema;
-endfunction  
- 
- 
 while z==0 || j==0
 j=0;
 z=0;
-eleccion_1=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Ingresar coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
+eleccion_1=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Ingresar grado y coeficientes", "Ingresar polos,ceros y ganancia"},"SelectionMode","Single","CancelString","Finalizar");
 switch(eleccion_1)
   case 1
     global coefnum;
@@ -201,7 +177,6 @@ switch(eleccion_1)
 endswitch
 
 funcion_transferencia;
-calcular_polos_ceros_ganancia;
 
 eleccion_2=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Seleccionar alguna caracteristica en particular", "Obtener todas las caracteristicas de la funcion"},"SelectionMode","Single");
 
@@ -211,29 +186,56 @@ switch(eleccion_2)
     eleccion_3=listdlg("Name","ASIC","ListSize", [500 500],"ListString",{"Obtener la expresion de la funcion transferencia", "Indicar polos","Indicar ceros","Marcar ganancia de la funcion","Obtener expresion con sus polos, ceros y ganancia","Mostrar graficamente la distribucion de polos y ceros.","Indicar estabilidad del sistema","Obtener todas las caracteristicas anteriores","Ingresar una nueva funcion"},"SelectionMode","Single","CancelString","Finalizar");   
      switch(eleccion_3)
         case 1 %muestra la funcion transferencia 
-          mostrar_funcion_transferencia;
+          global ftran;
+          global opcion;
+          msgbox(evalc ("ftran"),"Obtener la expresion de la funcion transferencia");
         case 2 %Indicar polos
+          global opcion;
           indicar_polos;
         case 3 %Indicar ceros
+          global opcion;
           indicar_ceros;
         case 4 %Mostrar ganancia 
+          global opcion;
           indicar_ganancia;
         case 5 %Expresion con sus polos, ceros y ganancia
           expresion_con_polos_ceros_ganancia;
         case 6 %Grafico polos y ceros
-          grafico_polos_ceros;
-        case 7 %Estabilidad del sistema
-          estabilidad_sistema;
+          global opcion;
+          global ftran;
+          pzmap(ftran);
+         case 7 %Estabilidad del sistema
+           global ftran;
+           calcular_polos_ceros_ganancia;
+          if(any(real(polosobtenidos) > 0))
+            msgbox("Es un sistema inestable"); %hay polos con parte real positiva
+          else
+            msgbox("Es un sistema estable"); %No hay polos con parte real positiva
+          endif
         case 8 %Todas las anteriores
-          todos_los_casos_funcion_transferencia;
-        case 9 %Nueva funcion
+          global opcion;
+          global ftran;
+          msgbox(evalc ("ftran"),"Obtener la expresion de la funcion transferencia");
+          indicar_polos;
+          indicar_ceros;
+          indicar_ganancia;
+          expresion_con_polos_ceros_ganancia;
+          pzmap(ftran);
+          global ftran;
+           calcular_polos_ceros_ganancia;
+          if(any(Int64(real(polosobtenidos))) > (4.1634e-016))
+            msgbox("Es un sistema inestable"); %hay polos con parte real positiva
+          else
+            msgbox("Es un sistema estable"); %No hay polos con parte real positiva
+          endif 
+        case 9 %Nueva funcion (falta)
           j=1;
         otherwise %!!
           j=1;
           z=1;
       endswitch
       endwhile
-  case 2 %mostrar todas
-    todos_los_casos_funcion_transferencia;
+  case 2 %mostrar todas (1,2,3,4,5,6)
+    disp("Sds");
   endswitch
  endwhile
